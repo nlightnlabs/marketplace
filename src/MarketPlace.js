@@ -76,11 +76,30 @@ function App() {
         FAClient.getUserInfo((response) => {
           console.log('User info retrieved: ', response);
           setUser(response)
+
+          setAppData(prevAppData => ({
+            ...prevAppData,
+            user: response
+          }));
+
         });
 
         FAClient.getTeamMembers((response) => {
           console.log('All user data retrieved: ', response);
-          setUsers(response)
+
+          let fieldSet = new Set()
+          response.map(item=>{
+            fieldSet.add(item.full_name)
+          })
+          let fieldList = Array.from(fieldSet).sort();
+          let result = { data: users, list: fieldList};
+    
+          setUsers(result)
+
+          setAppData(prevAppData => ({
+            ...prevAppData,
+            users: result
+          }));
         });
         
         FAClient.listEntityValues({
@@ -151,33 +170,33 @@ function App() {
   };
 
 
-//   const getUserData = async () => {
-//     let user = null
-//     let users = []
-//     if(environment==="freeagent"){
-//         const FAClient = window.FAClient;
-//         user = await freeAgentApi.getCurrentUserData(FAClient);
-//         users = await freeAgentApi.getAllUserData(FAClient);
-//     }else{
-//         let response = await nlightnApi.getTable("users")
-//         users = response.data
-//         user = users.find(item=>item.first_name ==="General")
-//     }
+  const getUserData = async () => {
+    let user = null
+    let users = []
+    if(environment==="freeagent"){
+      return
+        // const FAClient = window.FAClient;
+        // user = await freeAgentApi.getCurrentUserData(FAClient);
+        // users = await freeAgentApi.getAllUserData(FAClient);
+    }else{
+        let response = await nlightnApi.getTable("users")
+        users = response.data
+        user = users.find(item=>item.first_name ==="General")
+    }
 
-//     let fieldSet = new Set()
-//     users.map(item=>{
-//       fieldSet.add(item.full_name)
-//     })
-//     let fieldList = Array.from(fieldSet).sort();
-//     let result = { data: users, list: fieldList};
+    let fieldSet = new Set()
+    users.map(item=>{
+      fieldSet.add(item.full_name)
+    })
+    let fieldList = Array.from(fieldSet).sort();
+    let result = { data: users, list: fieldList};
  
-//     setAppData(prevAppData => ({
-//       ...prevAppData,
-//       user: user,
-//       users: result
-//     }));
-//     getIcons();
-// };
+    setAppData(prevAppData => ({
+      ...prevAppData,
+      user: user,
+      users: result
+    }));
+};
 
 const getEmployeeData = async () => { 
   let appName = ""
@@ -317,7 +336,7 @@ const getCatalogItems = async ()=>{
   ///Run function to get initial data
   React.useEffect(() => {
     getIcons();
-    // getUserData();
+    getUserData();
     getEmployeeData();
     getCurrencies();
     getBusinessUnits();
