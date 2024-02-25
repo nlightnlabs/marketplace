@@ -7,6 +7,7 @@ import Filter from "./components/Filter.js"
 import CatalogItem from "./components/CatalogItem.js"
 import OrderForm from "./components/OrderForm.js"
 import FloatingPanel from "./components/FloatingPanel.js"
+import { toProperCase } from './functions/formatValue.js';}
 
 
 function MarketPlace() {
