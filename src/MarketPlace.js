@@ -15,8 +15,6 @@ function App() {
   const [apps, setApps] = useState([])
 
   const [appData, setAppData] = React.useState({
-    environment: "",
-    FAClient: {},
     user:{},
     users:{},
     employees:{},
@@ -41,64 +39,58 @@ function App() {
         environment = "nlightn"
     }
     
-
     const useExternalScript = (src) => {
-        useEffect(() => {
-            const script = document.createElement('script');
-            script.src = src;
-            script.async = true;
-            document.body.appendChild(script);
+      useEffect(() => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.async = true;
+          document.body.appendChild(script);
 
-            setTimeout(() => {
-                initializeFreeAgentConnection();
-            }, 500);
+          setTimeout(() => {
+              initializeFreeAgentConnection();
+          }, 500);
 
-            return () => {
-                document.body.removeChild(script);
-            };
-        }, [src]);
-    };
-    //script to itnegrate FreeAgent library
-    useExternalScript('https://freeagentsoftware1.gitlab.io/apps/google-maps/js/lib.js');
-    
-
-    const initializeFreeAgentConnection = () => {
-
-      const FAAppletClient = window.FAAppletClient;
-        
-      //Initialize the connection to the FreeAgent this step takes away the loading spinner
-      const FAClient = new FAAppletClient({
-          appletId: 'nlightn_marketplace',
-      });
-      window.FAClient = FAClient;
-      console.log(FAClient)
-      setAppData(prevAppData=>({...prevAppData,FAClient: FAClient}))
-
-      FAClient.listEntityValues({
-          entity: "web_app",
-      }, (response) => {
-          console.log('Successfully loaded icons: ', response);
-          setApps(response)
-      });
-    }
-
+          return () => {
+              document.body.removeChild(script);
+          };
+      }, [src]);
+  };
+  //script to itnegrate FreeAgent library
+  useExternalScript('https://freeagentsoftware1.gitlab.io/apps/google-maps/js/lib.js');
   
 
-  //General data functions
-    const getData = async (appName) => {
+  const initializeFreeAgentConnection = () => {
+      const FAAppletClient = window.FAAppletClient;
+      
+      //Initialize the connection to the FreeAgent this step takes away the loading spinner
+      const FAClient = new FAAppletClient({
+          appletId: 'nlightn_iframe_template',
+      });
+      window.FAClient = FAClient;
 
-        let response = []
-        if(environment==="freeagent"){
-            const FAClient = window.FAClient;
-            console.log("FAClient: ", FAClient)
-            
-            response = await freeAgentApi.getFAAllRecords(FAClient, appName);
-        }else{
-            response = await nlightnApi.getTable(appName)
-            return response.data
-        }
-        return response
-    };
+      FAClient.listEntityValues({
+          entity: "custom_app_10",
+      }, (response) => {
+          console.log('Successfully loaded icons: ', response);
+          setAppData(prev=>({...prev,...{["custom_app_10"]:response}}))
+      });
+  }
+
+  const getData = async (appName) => {
+
+      let response = []
+      if(environment==="freeagent"){
+          const FAClient = window.FAClient;
+          response = await freeAgentApi.getFAAllRecords(FAClient, appName);
+          console.log("data retrieved: ", response)
+      }else{
+          
+          response = await nlightnApi.getTable(appName)
+          return response.data
+      }
+      console.log(response)
+      return response
+  };
     
 
     const addRecord = async (appName, updatedForm) => {
