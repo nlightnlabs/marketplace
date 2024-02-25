@@ -7,6 +7,7 @@
         const response = await FAClient.listEntityValues({
             entity: appName,
         })
+        console.log(response)
 
         response.map(record => {
             let rowData = {id: record.id};

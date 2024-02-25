@@ -293,6 +293,7 @@ const getCatalogItems = async ()=>{
     appName = "catalog_items" 
   }
   const data = await getData(appName)
+  console.log(`data retreived from ${environment} api: `, data)
 
   let items = []
   data.map(item=>{
