@@ -349,20 +349,24 @@ const getCatalogItems = async ()=>{
 
   const loadingModalStyle={
     position: "fixed", 
+    height: "300px", 
+    width: "400px", 
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    height: "300px", 
-    width: "25%vw", 
-    top: "30vh",
     fontSize: "24px",
     fontWeight: "bold",
     zIndex: 999,
     cursor: "grab",
   }
 
+  pageStyle={
+    height:"100vh",
+    width: "100vw"
+  }
+
   return (
-    <div className="d-flex flex-column">
+    <div className="d-flex flex-column" style={pageStyle}>
 
 
 
