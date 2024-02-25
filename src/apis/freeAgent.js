@@ -1,22 +1,12 @@
   //Standard function to get all records from a FreeAgent App
   export const getFAAllRecords = async (FAClient, appName) => {
-    console.log(FAClient)
     console.log(appName)
     
     try {
         let data = [];
-        const response = await new Promise((resolve, reject) => {
-            FAClient.listEntityValues({
-                entity: appName,
-            }, (response) => {
-                console.log('Connection successful: ', response);
-                if (response) {
-                    resolve(response);
-                } else {
-                    reject("No response from server");
-                }
-            });
-        });
+        const response = await FAClient.listEntityValues({
+            entity: appName,
+        })
 
         response.map(record => {
             let rowData = {id: record.id};
@@ -31,7 +21,7 @@
         });
         return data;
     } catch (error) {
-        throw new Error("Error fetching data: " + error);
+        console.log(error)
     }
 };
 
