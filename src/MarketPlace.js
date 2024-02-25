@@ -7,9 +7,15 @@ import Filter from "./components/Filter.js"
 import CatalogItem from "./components/CatalogItem.js"
 import OrderForm from "./components/OrderForm.js"
 import FloatingPanel from "./components/FloatingPanel.js"
+import Spinner from './components/Spinner.js'
 
 
 function MarketPlace() {
+
+  let environment = "freeagent"
+    if(process.env.NODE_ENV ==="development"){
+        environment = "nlightn"
+    }
 
   const [apps, setApps] = useState([])
 
@@ -33,12 +39,22 @@ function MarketPlace() {
     iconButtonStyle: {height: "30px", width: "30px", cursor: "pointer"}
   });
 
-  let environment = "freeagent"
-    if(process.env.NODE_ENV ==="development"){
-        environment = "nlightn"
-    }
+  // Set up local states for this app
+  const windowSize = useState({width: window.innerWidth, height: window.innerHeight});
+  const [showCart, setShowCart] = useState(false)
+  const [showOrderForm, setShowOrderForm] = useState(false)
+  const [cart, setCart] = useState([])
+  const [items, setItems] = useState([])
+  const [filterCriteria, setFilterCriteria] = useState([])
+  const [cardDetails, setCardDetails] = useState([])
+  const [currencySymbol, setCurrencySymbol] = useState("$")
+  const [position, setPosition] = useState({ x: 0.5*window.innerWidth, y: 0.5*window.innerHeight });
+  const [loading,setLoading] = useState(false)
+  const [filteredItems, setFilteredItems] = useState([])
+
+  
     
-    const useExternalScript = (src) => {
+  const useExternalScript = (src) => {
       useEffect(() => {
           const script = document.createElement('script');
           script.src = src;
@@ -107,17 +123,7 @@ function MarketPlace() {
     appData.addRecord = addRecord
   
   
-  // Set up local states for this app
-  const windowSize = useState({width: window.innerWidth, height: window.innerHeight});
-  const [showCart, setShowCart] = useState(false)
-  const [showOrderForm, setShowOrderForm] = useState(false)
-  const [cart, setCart] = useState([])
-  const [items, setItems] = useState([])
-  const [filterCriteria, setFilterCriteria] = useState([])
-  const [cardDetails, setCardDetails] = useState([])
-  const [currencySymbol, setCurrencySymbol] = useState("$")
-
-  const [filteredItems, setFilteredItems] = useState([])
+  
 
   const getIcons = async()=>{
     let appName = ""
@@ -348,7 +354,6 @@ const getCatalogItems = async ()=>{
      setAppData(prev=>({...prev,totalAmount: total, totalItems: totalItems, cart: updatedCart}))
  }
 
- const [position, setPosition] = React.useState({ x: 0.5*window.innerWidth, y: 0.5*window.innerHeight });
 
   const loadingModalStyle={
     position: "fixed",
