@@ -74,15 +74,15 @@ function App() {
             appletId: 'nlightn_marketplace',
         });
 
-        window.FAClient = FAClient;
-        appData.FAClient = FAClient
-
         FAClient.listEntityValues({
             entity: "web_app",
         }, (response) => {
             console.log('Successfully loaded icons: ', response);
             setApps(response)
         });
+
+        window.FAClient = FAClient;
+        appData.FAClient = FAClient
 
     }
 
