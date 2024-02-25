@@ -1,4 +1,3 @@
-  //Standard function to get all records from a FreeAgent App
 export const getFAAllRecords = async (FAClient, appName) => {
     try {
         let data = [];

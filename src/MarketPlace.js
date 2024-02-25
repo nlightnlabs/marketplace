@@ -1,9 +1,8 @@
 import React, {useState, useEffect} from 'react'
 import "bootstrap/dist/css/bootstrap.min.css"
-import * as freeAgentApi from "./apis/FreeAgent.js";
+// import * as freeAgentApi from "./apis/FreeAgent.js"
+import * as freeAgentApi from "./apis/freeAgent.js"
 import * as nlightnApi from './apis/nlightn.js';
-import {toProperCase, formatDateInput, limitText, UTCToLocalDate, UTCToLocalTime} from "./functions/formatValue.js";
-import MultiInput from "./components/MultiInput.js"
 import Cart from "./components/Cart.js"
 import Filter from "./components/Filter.js"
 import CatalogItem from "./components/CatalogItem.js"
