@@ -328,13 +328,15 @@ const getCatalogItems = async ()=>{
 
   ///Run function to get initial data
   useEffect(() => {
-    getIcons();
-    getUserData();
-    getEmployeeData();
-    getCurrencies();
-    getBusinessUnits();
-    getFacilities();
-    getCatalogItems();
+    setTimeout(()=>{
+      getIcons();
+      getUserData();
+      getEmployeeData();
+      getCurrencies();
+      getBusinessUnits();
+      getFacilities();
+      getCatalogItems();
+    },1000)
   },[])
 
 
