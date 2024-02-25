@@ -8,6 +8,7 @@ import CatalogItem from "./components/CatalogItem.js"
 import OrderForm from "./components/OrderForm.js"
 import FloatingPanel from "./components/FloatingPanel.js"
 import { toProperCase } from './functions/formatValue.js';
+import Spinner from './components/Spinner.js'
 
 
 function MarketPlace() {
@@ -44,6 +45,7 @@ function MarketPlace() {
   const [filteredItems, setFilteredItems] = useState([])
   const [cardDetails, setCardDetails] = useState([])
   const [currencySymbol, setCurrencySymbol] = useState("$")
+  const [loading, setLoading] = useState(false)
 
   let environment = "freeagent"
   if(process.env.NODE_ENV ==="development"){
@@ -328,6 +330,8 @@ const getCatalogItems = async ()=>{
 
   ///Run function to get initial data
   useEffect(() => {
+    setLoading(true)
+
     setTimeout(()=>{
       getIcons();
       getUserData();
@@ -337,13 +341,42 @@ const getCatalogItems = async ()=>{
       getFacilities();
       getCatalogItems();
     },1000)
+
+    setTimeout(()=>{
+      setLoading(false)
+    },1500)
+    
   },[])
 
 
 
+
+  const loadingModalStyle={
+    position: "fixed", 
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    height: "300px", 
+    width: "25%vw", 
+    top: "30vh",
+    fontSize: "24px",
+    fontWeight: "bold",
+    zIndex: 999,
+    cursor: "grab",
+  }
+
   return (
     <div className="d-flex flex-column">
-     
+
+
+
+      {loading &&
+        <div className="d-flex flex-column justify-content-center bg-light shadow p-3 text-center border border-3 rounded-3" style={loadingModalStyle}>
+            <Spinner/>
+            <div>ChatGPT is working on a response.</div> 
+            <div>Please wait...</div> 
+        </div>
+      }
     </div>
   );
 }
