@@ -65,19 +65,14 @@ function App() {
     const initializeFreeAgentConnection = () => {
 
         const FAAppletClient = window.FAAppletClient;
+        const context = window.context
+        console.log(context)
+        console.log(context.clientAPI)
         
         //Initialize the connection to the FreeAgent this step takes away the loading spinner
         const FAClient = new FAAppletClient({
             appletId: 'nlightn_marketplace',
         });
-
-        FAClient.getUserInfo((response) => {
-            console.log('Current user info retreived:', response);
-        });
-
-        FAClient.getTeamMembers((response) => {
-          console.log('All users retreived:', response);
-      });
 
         window.FAClient = FAClient;
         appData.FAClient = FAClient
