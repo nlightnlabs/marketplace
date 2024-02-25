@@ -347,13 +347,14 @@ const getCatalogItems = async ()=>{
   },[])
 
 
+  const [position, setPosition] = React.useState({ x: 0.5*window.innerWidth, y: 0.5*window.innerHeight });
   const loadingModalStyle={
-    position: "fixed", 
-    height: "300px", 
-    width: "400px", 
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
+    position: "fixed",
+    height: "300px",
+    width: "400px",
+    transform: "translate(-50%, -50%)",
+    cursor: "move",
+    zIndex: 9999,
     fontSize: "24px",
     fontWeight: "bold",
     zIndex: 999,
@@ -371,7 +372,8 @@ const getCatalogItems = async ()=>{
 
 
       {loading &&
-        <div className="d-flex flex-column justify-content-center bg-light shadow p-3 text-center border border-3 rounded-3" style={loadingModalStyle}>
+        <div className="d-flex flex-column justify-content-center bg-light shadow p-3 text-center border border-3 rounded-3" 
+        style={{...loadingModalStyle,left: position.x + "px", top: position.y + "px"}}>
             <Spinner/>
             <div>Loading...</div> 
             <div>Please wait...</div> 
