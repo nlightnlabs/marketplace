@@ -65,14 +65,12 @@ function App() {
     const initializeFreeAgentConnection = () => {
 
         const FAAppletClient = window.FAAppletClient;
-        const context = window.context
-        console.log(context)
-        console.log(context.clientAPI)
         
         //Initialize the connection to the FreeAgent this step takes away the loading spinner
         const FAClient = new FAAppletClient({
             appletId: 'nlightn_marketplace',
         });
+        console.log(FAClient)
 
         FAClient.listEntityValues({
             entity: "web_app",
@@ -90,9 +88,12 @@ function App() {
 
   //General data functions
     const getData = async (appName) => {
+
         let response = []
         if(environment==="freeagent"){
             const FAClient = window.FAClient;
+            console.log("FAClient: ", FAClient)
+            
             response = await freeAgentApi.getFAAllRecords(FAClient, appName);
         }else{
             response = await nlightnApi.getTable(appName)
