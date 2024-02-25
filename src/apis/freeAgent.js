@@ -148,30 +148,22 @@ export const deleteFARecord = async (FAClient, appName, recordId) => {
 }
 
   //Standard function to get a user's data from FreeAgent
-  export const getCurrentUserData = (FAClient) => {
-    return new Promise((resolve, reject) => {
-        FAClient.getUserInfo((response) => {
-            console.log('User info: ', response);
-            if (response) {
-                resolve(response);
-            } else {
-                reject("No response from server");
-            }
-        });
-    });
+  export const getCurrentUserData = async (FAClient) => {
+    try{
+        const response = await FAClient.getUserInfo()
+        return response
+    }catch(error){
+        console.log(error)
+    }
 }
 
   //Standard function to get a user's data from FreeAgent
-  export const getAllUserData = (FAClient) => {
-    return new Promise((resolve, reject) => {
-        FAClient.getTeamMembers((response) => {
-            console.log('All users: ', response);
-            if (response) {
-                resolve(response);
-            } else {
-                reject("No response from server");
-            }
-        });
-    });
-}
+  export const getAllUserData = async (FAClient) =>{
+    try{
+        const response = await FAClient.getTeamMembers()
+        return response
+    }catch(error){
+        console.log(error)
+    }
+  }
 
