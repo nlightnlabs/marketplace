@@ -7,11 +7,14 @@ import Filter from "./components/Filter.js"
 import CatalogItem from "./components/CatalogItem.js"
 import OrderForm from "./components/OrderForm.js"
 import FloatingPanel from "./components/FloatingPanel.js"
+import { toProperCase } from './functions/formatValue.js';
+import Spinner from './components/Spinner.js'
 
 
 function MarketPlace() {
 
   const [apps, setApps] = useState([])
+  const [appList, setAppList] = useState([])
 
   const [appData, setAppData] = React.useState({
     user:{},
@@ -33,12 +36,24 @@ function MarketPlace() {
     iconButtonStyle: {height: "30px", width: "30px", cursor: "pointer"}
   });
 
+  const windowSize = useState({width: window.innerWidth, height: window.innerHeight});
+  const [showCart, setShowCart] = useState(false)
+  const [showOrderForm, setShowOrderForm] = useState(false)
+  const [cart, setCart] = useState([])
+  const [items, setItems] = useState([])
+  const [filterCriteria, setFilterCriteria] = useState([])
+  const [filteredItems, setFilteredItems] = useState([])
+  const [cardDetails, setCardDetails] = useState([])
+  const [currencySymbol, setCurrencySymbol] = useState("$")
+  const [loading, setLoading] = useState(false)
+
   let environment = "freeagent"
-    if(process.env.NODE_ENV ==="development"){
-        environment = "nlightn"
-    }
+  if(process.env.NODE_ENV ==="development"){
+      environment = "nlightn"
+  }
     
-    const useExternalScript = (src) => {
+  
+  const useExternalScript = (src) => {
       useEffect(() => {
           const script = document.createElement('script');
           script.src = src;
@@ -56,22 +71,21 @@ function MarketPlace() {
   };
   //script to itnegrate FreeAgent library
   useExternalScript('https://freeagentsoftware1.gitlab.io/apps/google-maps/js/lib.js');
-  
+    
 
   const initializeFreeAgentConnection = () => {
       const FAAppletClient = window.FAAppletClient;
       
       //Initialize the connection to the FreeAgent this step takes away the loading spinner
       const FAClient = new FAAppletClient({
-          appletId: 'nlightn_iframe_template',
+          appletId: 'nlightn_marketplace',
       });
       window.FAClient = FAClient;
 
       FAClient.listEntityValues({
-          entity: "custom_app_10",
+          entity: "icon",
       }, (response) => {
           console.log('Successfully loaded icons: ', response);
-          setAppData(prev=>({...prev,...{["custom_app_10"]:response}}))
       });
   }
 
@@ -90,34 +104,44 @@ function MarketPlace() {
       console.log(response)
       return response
   };
-    
 
-    const addRecord = async (appName, updatedForm) => {
-        if(environment == "freeagent"){
-            try {
-                const FAClient = window.FAClient;
-                await freeAgentApi.addFARecord(FAClient, appName, updatedForm)
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        }else{
-            await nlightnApi.addRecord(appName, updatedForm)
+  const addRecord = async (appName, updatedForm) => {
+    if(environment == "freeagent"){
+        try {
+            const FAClient = window.FAClient;
+            await freeAgentApi.addFARecord(FAClient, appName, updatedForm)
+        } catch (error) {
+            console.error("Error fetching data:", error);
         }
+    }else{
+        await nlightnApi.addRecord(appName, updatedForm)
     }
-    appData.addRecord = addRecord
-  
-  
-  // Set up local states for this app
-  const windowSize = useState({width: window.innerWidth, height: window.innerHeight});
-  const [showCart, setShowCart] = useState(false)
-  const [showOrderForm, setShowOrderForm] = useState(false)
-  const [cart, setCart] = useState([])
-  const [items, setItems] = useState([])
-  const [filterCriteria, setFilterCriteria] = useState([])
-  const [cardDetails, setCardDetails] = useState([])
-  const [currencySymbol, setCurrencySymbol] = useState("$")
+}
+appData.addRecord = addRecord
 
-  const [filteredItems, setFilteredItems] = useState([])
+    
+  //Get data for all apps
+  const getApps = async (appname)=>{
+      const response = await getData(appname)
+      setApps(response)
+      let list = []
+      response.map(item=>{
+          list.push(item.label)
+      })
+      setAppList(list)
+  }
+
+  useEffect(()=>{
+      setTimeout(()=>{
+          let appname = null    
+          if(process.env.NODE_ENV==="production" && environment==="freeagent"){
+              appname = "web_app"
+          }else{
+              appname = "apps"
+          }
+          getApps(appname)
+      },500) 
+  },[])
 
   const getIcons = async()=>{
     let appName = ""
@@ -133,7 +157,6 @@ function MarketPlace() {
       icons: data
     }));
   };
-
 
   const getUserData = async () => {
     let user = null
@@ -167,6 +190,7 @@ function MarketPlace() {
     }));
 };
 
+  
 const getEmployeeData = async () => { 
   let appName = ""
   if(environment =="freeagent"){
@@ -319,36 +343,11 @@ const getCatalogItems = async ()=>{
     setTimeout(()=>{
       setLoading(false)
     },3000)
+
   },[])
 
-  const addToCart = (item)=>{ 
-    
-    let updatedCart = cart
-    console.log("updated cart: ", updatedCart)
-    console.log("item: ", item)
 
-    if(item.quantity =="" || item.quantity ==null){
-      alert("Please enter a quantity")
-      return
-    }
-    if(updatedCart.find(i=>i.id===item.id) != null){
-       updatedCart.find(i=>i.id===item.id).quantity = item.quantity
-    }else{
-      updatedCart = [...cart,item ]
-      console.log(updatedCart)
-      setCart([...cart,item ]);
-    }
-  
-    let totalItems = updatedCart.length
-    let total = Number(appData.totalAmount)
-    updatedCart.map(item=>{
-        let itemAmount = Number((Number(item.price)*Number(item.quantity)).toFixed(2))
-        total = itemAmount + total
-      })
-     setAppData(prev=>({...prev,totalAmount: total, totalItems: totalItems, cart: updatedCart}))
- }
-
- const [position, setPosition] = React.useState({ x: 0.5*window.innerWidth, y: 0.5*window.innerHeight });
+  const [position, setPosition] = React.useState({ x: 0.5*window.innerWidth, y: 0.5*window.innerHeight });
 
   const loadingModalStyle={
     position: "fixed",
@@ -365,72 +364,15 @@ const getCatalogItems = async ()=>{
     cursor: "grab",
   }
 
-  return(
-    <div className="flex-container" style={{height:"95%", width:"100%", overflowY:"hidden"}}>
+  const pageStyle={
+    height:"100vh",
+    width: "100vw"
+  }
 
-        {/* Filter */}
-        {<div className="d-flex shadow-sm w-100">
-          <Filter 
-            appData = {appData}
-            setAppData = {setAppData}
-            setFilteredItems = {setFilteredItems}
-          />
-        </div>
-        }
+  return (
+    <div className="d-flex flex-column" style={pageStyle}>
 
-        <div  className="d-flex justify-content-center p-1" style={{height:"95%", width:"100%", overflowY:"hidden"}}>
-              
-              {/* Catalog Items */}
-              <div className="d-flex justify-content-center" style={{height:"95%", overflowY:"auto"}}>
 
-              
-                  <div className="d-flex flex-column">
-                    {filteredItems.length>0 &&  <div className="d-flex justify-content-center">{`${filteredItems.length} Item${filteredItems.length>1?"s":""}`}</div>}
-                    <div className="d-flex justify-content-center flex-wrap">
-                    {filteredItems.length>0 && filteredItems.map((item, index)=>(
-                      <CatalogItem 
-                        key={index}
-                        item = {item}
-                        appData={appData}
-                        setAppData={setAppData}
-                        addToCart={addToCart}
-                        
-                      />
-                    ))}
-                    {filteredItems.length===0 && <div className="d-flex align-items-center" style={{fontSize: 20, color: "gray", height:"500px"}}>No items found.  Please adjust filter</div>}
-                    </div>
-                  </div>
-             
-              {/* Cart */}
-              {cart.length>0 && 
-                <div className="d-flex bg-light shadow rounded-3" style={{minWidth: "450px", height: "100%", marginRight:0}}>
-                <Cart
-                  cart = {cart}
-                  setCart = {setCart}
-                  appData = {appData}
-                  setAppData = {setAppData}
-                  setShowOrderForm = {setShowOrderForm}
-                />
-                </div>
-              }
-          </div>
-        </div>
-
-      {/* Checkout Order Form */}
-      {showOrderForm && 
-        <FloatingPanel
-            title="Check Out"
-            top="50vh"
-            left="50vw"
-            height="80vh"
-            width="60vw"
-            appData={appData}
-            displayPanel={setShowOrderForm}
-            cart={cart} 
-        >
-          <OrderForm appData={appData} setAppData={setAppData} setShowOrderForm={setShowOrderForm} cart={cart} />
-        </FloatingPanel>
-      }
 
       {loading &&
         <div className="d-flex flex-column justify-content-center bg-light shadow p-3 text-center border border-3 rounded-3" 
@@ -440,8 +382,8 @@ const getCatalogItems = async ()=>{
             <div>Please wait...</div> 
         </div>
       }
-
     </div>
-  )
+  );
 }
-export default MarketPlace
+
+export default MarketPlace;
