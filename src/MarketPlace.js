@@ -360,7 +360,7 @@ const getCatalogItems = async ()=>{
     cursor: "grab",
   }
 
-  pageStyle={
+  const pageStyle={
     height:"100vh",
     width: "100vw"
   }
