@@ -16,7 +16,7 @@ function App() {
 
   const [appData, setAppData] = React.useState({
     environment: "",
-    FAClient: null,
+    FAClient: {},
     user:{},
     users:{},
     employees:{},
@@ -71,6 +71,8 @@ function App() {
           appletId: 'nlightn_marketplace',
       });
       window.FAClient = FAClient;
+      console.log(FAClient)
+      setAppData(prevAppData=>({...prevAppData,FAClient: FAClient}))
 
       FAClient.listEntityValues({
           entity: "web_app",
