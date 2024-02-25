@@ -316,12 +316,12 @@ const getCatalogItems = async ()=>{
     const loadData = async () => {
       try {
         await getIcons();
-        await getUserData();
-        await getEmployeeData();
-        await getCurrencies();
-        await getBusinessUnits();
-        await getFacilities();
-        await getCatalogItems();
+        // await getUserData();
+        // await getEmployeeData();
+        // await getCurrencies();
+        // await getBusinessUnits();
+        // await getFacilities();
+        // await getCatalogItems();
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -379,13 +379,14 @@ const getCatalogItems = async ()=>{
     <div className="flex-container" style={{height:"95%", width:"100%", overflowY:"hidden"}}>
 
         {/* Filter */}
-        {<div className="d-flex shadow-sm w-100">
-          <Filter 
-            appData = {appData}
-            setAppData = {setAppData}
-            setFilteredItems = {setFilteredItems}
-          />
-        </div>
+        {filterCriteria.length>0 && appData.icons.length>0 &&
+          <div className="d-flex shadow-sm w-100">
+            <Filter 
+              appData = {appData}
+              setAppData = {setAppData}
+              setFilteredItems = {setFilteredItems}
+            />
+          </div>
         }
 
         <div  className="d-flex justify-content-center p-1" style={{height:"95%", width:"100%", overflowY:"hidden"}}>

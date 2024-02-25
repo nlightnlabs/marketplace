@@ -1,6 +1,7 @@
   //Standard function to get all records from a FreeAgent App
   export const getFAAllRecords = async (FAClient, appName) => {
-    console.log(appName)
+    console.log("FAClient: ",FAClient)
+    console.log("appName:", appName)
     
     try {
         let data = [];
