@@ -1,419 +1,298 @@
 import React, {useState, useEffect} from 'react'
 import "bootstrap/dist/css/bootstrap.min.css"
-// import * as freeAgentApi from "./apis/FreeAgent.js"
 import * as freeAgentApi from "./apis/freeAgent.js"
 import * as nlightnApi from './apis/nlightn.js';
-import Cart from "./components/Cart.js"
-import Filter from "./components/Filter.js"
-import CatalogItem from "./components/CatalogItem.js"
-import OrderForm from "./components/OrderForm.js"
-import FloatingPanel from "./components/FloatingPanel.js"
+import {toProperCase} from "./functions/formatValue.js";
+
+import {AgGridReact} from 'ag-grid-react';
+import 'ag-grid-community/styles//ag-grid.css';
+import 'ag-grid-community/styles//ag-theme-quartz.css';
 
 
-function App() {
+function MarketPlace() {
 
-  const [apps, setApps] = useState([])
-
-  const [appData, setAppData] = React.useState({
-    user:{},
-    users:{},
-    employees:{},
-    icons:[],
-    facilities:{},
-    businessUnits:{},
-    countries:{},
-    filterCriteria:[],
-    filteredItems: [],
-    totalAmount:0,
-    totalItems:0,
-    appHomePage:"",
-    cart:[],
-    catalogItems:[],
-    items:[],
-    currencySymbol: "$",
-    iconButtonStyle: {height: "30px", width: "30px", cursor: "pointer"}
-  });
-
-  let environment = "freeagent"
+    let environment = "freeagent"
     if(process.env.NODE_ENV ==="development"){
         environment = "nlightn"
     }
     
+    const [icons, setIcons] = useState([])
+    const [apps, setApps] = useState([])
+    const [appList, setAppList] = useState([])
+    
+    const [data, setData] = useState([]);
+    const [fields, setFields] = useState([])
+    const [appLabel, setAppLabel] = useState("")
+    const [appName, setAppName] = useState("")
+
+    const [showForm, setShowForm] = useState(false)
+    const [formData, setFormData] = useState({})
+    const [selectedRecordId, setSelectedRecordId] = useState(null)
+
+    const [updatedForm, setUpdatedForm] = useState({})
+
+    const [showLoadingModal, setShowLoadingModal] = useState(false)
+
     const useExternalScript = (src) => {
-      useEffect(() => {
-          const script = document.createElement('script');
-          script.src = src;
-          script.async = true;
-          document.body.appendChild(script);
+        useEffect(() => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            document.body.appendChild(script);
 
-          setTimeout(() => {
-              initializeFreeAgentConnection();
-          }, 500);
+            setTimeout(() => {
+                initializeFreeAgentConnection();
+            }, 500);
 
-          return () => {
-              document.body.removeChild(script);
-          };
-      }, [src]);
-  };
-  //script to itnegrate FreeAgent library
-  useExternalScript('https://freeagentsoftware1.gitlab.io/apps/google-maps/js/lib.js');
-  
-
-  const initializeFreeAgentConnection = () => {
-      const FAAppletClient = window.FAAppletClient;
-      
-      //Initialize the connection to the FreeAgent this step takes away the loading spinner
-      const FAClient = new FAAppletClient({
-          appletId: 'nlightn_iframe_template',
-      });
-      window.FAClient = FAClient;
-
-      FAClient.listEntityValues({
-          entity: "custom_app_10",
-      }, (response) => {
-          console.log('Successfully loaded icons: ', response);
-          setAppData(prev=>({...prev,...{["custom_app_10"]:response}}))
-      });
-  }
-
-  const getData = async (appName) => {
-
-      let response = []
-      if(environment==="freeagent"){
-          const FAClient = window.FAClient;
-          response = await freeAgentApi.getFAAllRecords(FAClient, appName);
-          console.log("data retrieved: ", response)
-      }else{
-          
-          response = await nlightnApi.getTable(appName)
-          return response.data
-      }
-      console.log(response)
-      return response
-  };
+            return () => {
+                document.body.removeChild(script);
+            };
+        }, [src]);
+    };
+    //script to itnegrate FreeAgent library
+    useExternalScript('https://freeagentsoftware1.gitlab.io/apps/google-maps/js/lib.js');
     
 
-    const addRecord = async (appName, updatedForm) => {
-        if(environment == "freeagent"){
+    const initializeFreeAgentConnection = () => {
+        const FAAppletClient = window.FAAppletClient;
+        
+        //Initialize the connection to the FreeAgent this step takes away the loading spinner
+        const FAClient = new FAAppletClient({
+            appletId: 'nlightn_marketplace',
+        });
+        window.FAClient = FAClient;
+
+        FAClient.listEntityValues({
+            entity: "icon",
+        }, (response) => {
+            console.log('Successfully loaded icons: ', response);
+            setIcons(response)
+        });
+    }
+
+    const getData = async (appName) => {
+
+        let response = []
+        if(environment==="freeagent"){
+            const FAClient = window.FAClient;
+            response = await freeAgentApi.getFAAllRecords(FAClient, appName);
+            console.log("data retrieved: ", response)
+        }else{
+            
+            response = await nlightnApi.getTable(appName)
+            return response.data
+        }
+        console.log(response)
+        return response
+    };
+
+    
+    //Get data for all apps
+    const getApps = async (appname)=>{
+        const response = await getData(appname)
+        setApps(response)
+        let list = []
+        response.map(item=>{
+            list.push(item.label)
+        })
+        setAppList(list)
+    }
+
+    useEffect(()=>{
+       setTimeout(()=>{
+            let appname = null    
+            if(process.env.NODE_ENV==="production" && environment==="freeagent"){
+                appname = "web_app"
+            }else{
+                appname = "apps"
+            }
+            getApps(appname)
+       },500) 
+    },[])
+
+
+    const handleGetData = async ()=>{
+        
+        const response = await getData(appName)  
+        setData(response)
+        
+        let fieldList = []
+        if (response.length > 0) {
+            Object.keys(response[0]).map((field, index) => {
+                fieldList.push({ headerName: toProperCase(field.replaceAll("_", " ")), field: field, filter: true });
+                setFormData(prev => ({ ...prev, ...{ [field]: "" } }));
+            });
+        }
+        setFields(fieldList);
+    }
+
+    
+
+    const updateRecord = async () => {
+
+        if(environment === "freeagent"){
             try {
                 const FAClient = window.FAClient;
-                await freeAgentApi.addFARecord(FAClient, appName, updatedForm)
+                freeAgentApi.updateFARecord(FAClient, appName, selectedRecordId, updatedForm)
+                setTimeout(async ()=>{
+                    const response = await getData(appName)  
+                    setData(response)
+                },1000)
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         }else{
-            await nlightnApi.addRecord(appName, updatedForm)
+            await nlightnApi.updateRecord(appName,"id", selectedRecordId,updatedForm)
+            const updatedData = await getData(appName)
+            setData(updatedData)
         }
     }
-    appData.addRecord = addRecord
-  
-  
-  // Set up local states for this app
-  const windowSize = useState({width: window.innerWidth, height: window.innerHeight});
-  const [showCart, setShowCart] = useState(false)
-  const [showOrderForm, setShowOrderForm] = useState(false)
-  const [cart, setCart] = useState([])
-  const [items, setItems] = useState([])
-  const [filterCriteria, setFilterCriteria] = useState([])
-  const [cardDetails, setCardDetails] = useState([])
-  const [currencySymbol, setCurrencySymbol] = useState("$")
-
-  const [filteredItems, setFilteredItems] = useState([])
-
-  const getIcons = async()=>{
-    let appName = ""
-    if(environment ==="freeagent"){
-      appName = "icon"
-    }else{
-      appName = "icons" 
-    }
-    const data = await getData(appName)
-  
-    setAppData(prevAppData => ({
-      ...prevAppData,
-      icons: data
-    }));
-  };
 
 
-  const getUserData = async () => {
-    let user = null
-    let users = []
-    if(environment==="freeagent"){
-      // ****CURRENTLY can not access user info in FAClient, so default to nlightn users
-        // const FAClient = window.FAClient;
-        // user = await freeAgentApi.getCurrentUserData(FAClient);
-        // users = await freeAgentApi.getAllUserData(FAClient);
-
-        let response = await nlightnApi.getTable("users")
-        users = response.data
-        user = users.find(item=>item.first_name ==="General")
-    }else{
-        let response = await nlightnApi.getTable("users")
-        users = response.data
-        user = users.find(item=>item.first_name ==="General")
-    }
-
-    let fieldSet = new Set()
-    users.map(item=>{
-      fieldSet.add(item.full_name)
-    })
-    let fieldList = Array.from(fieldSet).sort();
-    let result = { data: users, list: fieldList};
- 
-    setAppData(prevAppData => ({
-      ...prevAppData,
-      user: user,
-      users: result
-    }));
-};
-
-const getEmployeeData = async () => { 
-  let appName = ""
-  if(environment =="freeagent"){
-    appName = "custom_app_35"
-  }else{
-    appName = "users" 
-  }
-  const data = await getData(appName)
-
-  let fieldSet = new Set()
-  data.map(item=>{
-    fieldSet.add(item.full_name)
-  })
-  let fieldList = Array.from(fieldSet).sort();
-  let result = { data: data, list: fieldList};
-
-  setAppData(prevAppData => ({
-    ...prevAppData,
-    employees: result
-  }));
-};
-
-const setupFilters = async (data)=>{
-  let items = data
-  const createListFromTableData = (tableData, fieldName)=>{
-    if(tableData.length>0 && fieldName !=null && fieldName !=""){
-      let set = new Set()
-      tableData.map(item=>{
-        set.add(item[fieldName])
-        })
-      let list = Array.from(set)
-      return list.sort()
-    }
-  }
-  const filterData = [
-    {id: 1, name: "category", label: "Category", reference_data_name:"category", operator:"===", value:"", data_type: "text", convertedValue: (value)=>{return value.toString();}, list: createListFromTableData(items, "category"), color:"rgb(0,0,0)", width:200},
-    {id: 2, name: "subcategory", label: "Subcategory", reference_data_name:"subcategory", operator:"===", data_type: "text",value:"",convertedValue: (value)=>{return value.toString();}, list:createListFromTableData(items, "subcategory"), color:"rgb(0,0,0)", width:200},
-    {id: 3, name: "supplier", label: "Supplier", reference_data_name:"supplier", operator:"===", data_type: "text",value:"", convertedValue: (value)=>{return value.toString();}, list:createListFromTableData(items, "supplier"), color:"rgb(0,0,0)", width:200},
-    {id: 4, name: "min_price",label: "Min Price", reference_data_name:"price", operator:">=", data_type: "number",value:"", convertedValue: (value)=>{return Number(value);},list: null, filterList: null, color:"rgb(0,0,0)", width:100},
-    {id: 5, name: "max_price", label: "Max Price", reference_data_name:"price", operator:"<=", data_type: "number",value:"",convertedValue: (value)=>{return Number(value);},  formlistList: null, filterList: null, color:"rgb(0,0,0)", width:100},
-    {id: 6, name: "rating", label: "Min Rating", reference_data_name:"rating", operator:">=",data_type: "number", value:"",  convertedValue: (value)=>{return Number(value.toString().length);},list:createListFromTableData(items, "star_rating"),color:"rgb(255,200,0)", width:150},
-    {id: 7, name: "quantity_in_stock", label: "Min Qty in Stock", reference_data_name:"quantity_in_stock", data_type: "number",value:"", convertedValue: (value)=>{return Number(value);}, operator:">=",  list:null, filterList:null,color:"rgb(0,0,0)", width:150},
-    {id: 8, name: "lead_time", label: "Max Lead Time", reference_data_name:"lead_time", operator:"<=", data_type: "number",value:"", convertedValue: (value)=>{return Number(value);},list:null, filterList:null,color:"rgb(0,0,0)", width:150},
-  ]
-  setFilterCriteria(filterData)
-  setAppData(prevAppData => ({
-    ...prevAppData,
-    filterCriteria: filterData
-  }));
-}
-
-const getCurrencies = async ()=>{
-  let appName = ""
-  if(environment =="freeagent"){
-    appName = "custom_app_10"
-  }else{
-    appName = "countries" 
-  }
-  const data = await getData(appName)
-
-  setAppData(prevAppData => ({
-    ...prevAppData,
-    countries: data
-  }));
-}
-
-const getBusinessUnits = async ()=>{
-
-  let appName = ""
-  if(environment =="freeagent"){
-    appName = "custom_app_44"
-  }else{
-    appName = "business_units" 
-  }
-  const data = await getData(appName)
-
-  let fieldSet = new Set()
-  data.map(item=>{
-    fieldSet.add(item.name)
-  })
-  let fieldList = Array.from(fieldSet).sort();
-  let result = { data: data, list: fieldList};
-
-  setAppData(prevAppData => ({
-    ...prevAppData,
-    businessUnits: result
-  }));
-
-}
+    const addRecord = async () => {
+        if(environment == "freeagent"){
+            try {
+                const FAClient = window.FAClient;
     
-const getFacilities = async ()=>{
-  let appName = ""
-  if(environment =="freeagent"){
-    appName = "custom_app_51"
-  }else{
-    appName = "facilities" 
-  }
-  const data = await getData(appName)
-
-  let fieldSet = new Set()
-  data.map(item=>{
-    fieldSet.add(item.name)
-  })
-  let fieldList = Array.from(fieldSet).sort();
-  let result = { data: data, list: fieldList};
-
-  setAppData(prevAppData => ({
-    ...prevAppData,
-    facilities: result
-  }));
-}
-
-const getCatalogItems = async ()=>{
-  let appName = ""
-  if(environment =="freeagent"){
-    appName = "custom_app_22"
-  }else{
-    appName = "catalog_items" 
-  }
-  const data = await getData(appName)
-
-  let items = []
-  data.map(item=>{
-    items.push({...item,...{["quantity"]:""},...{["item_amount"]:""}})
-  })
-
-  setFilteredItems(data) 
-
-  setAppData(prev=>({...prev,items:items}))
-  setItems(items);  
-  
-  setupFilters(data) 
-}
-
-
-  ///Run function to get initial data
-  React.useEffect(() => {
-    getIcons();
-    getUserData();
-    getEmployeeData();
-    getCurrencies();
-    getBusinessUnits();
-    getFacilities();
-    getCatalogItems();
-  },[])
-
-  const addToCart = (item)=>{ 
+                delete updatedForm.id
+                delete updatedForm.seq_id
     
-    let updatedCart = cart
-    console.log("updated cart: ", updatedCart)
-    console.log("item: ", item)
-
-    if(item.quantity =="" || item.quantity ==null){
-      alert("Please enter a quantity")
-      return
-    }
-    if(updatedCart.find(i=>i.id===item.id) != null){
-       updatedCart.find(i=>i.id===item.id).quantity = item.quantity
-    }else{
-      updatedCart = [...cart,item ]
-      console.log(updatedCart)
-      setCart([...cart,item ]);
-    }
-  
-    let totalItems = updatedCart.length
-    let total = Number(appData.totalAmount)
-    updatedCart.map(item=>{
-        let itemAmount = Number((Number(item.price)*Number(item.quantity)).toFixed(2))
-        total = itemAmount + total
-      })
-     setAppData(prev=>({...prev,totalAmount: total, totalItems: totalItems, cart: updatedCart}))
- }
-
-
-
-  return(
-    <div className="flex-container" style={{height:"95%", width:"100%", overflowY:"hidden"}}>
-
-        {/* Filter */}
-        {<div className="d-flex shadow-sm w-100">
-          <Filter 
-            appData = {appData}
-            setAppData = {setAppData}
-            setFilteredItems = {setFilteredItems}
-          />
-        </div>
+                await freeAgentApi.addFARecord(FAClient, appName, updatedForm)
+                setInterval(()=>{
+                    setShowLoadingModal(true)
+                },600)
+                setTimeout(async ()=>{
+                    const response = await getData(appName)  
+                    setData(response)
+                    setShowLoadingModal(false)
+                },500)
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }else{
+            const response = await nlightnApi.addRecord(appName, updatedForm)
+            const updatedData = await getData(appName)
+            console.log(updatedData)
+            setData(updatedData)
         }
+    }
+    
+    const deleteRecord = async () => {
+        if(environment == "freeagent"){
+            try {
+                const FAClient = window.FAClient;
+                await freeAgentApi.updateFARecord(FAClient, appName, selectedRecordId)
+                setInterval(()=>{
+                    setShowLoadingModal(true)
+                },600)
+                setTimeout(async ()=>{
+                    const response = await getData(appName)  
+                    setData(response)
+                    setShowLoadingModal(false)
+                },500)
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }else{
+            await nlightnApi.deleteRecord(appName,"id",selectedRecordId)
+            const updatedData = await getData(appName)
+            setData(updatedData)
+        }
+    }
 
-        <div  className="d-flex justify-content-center p-1" style={{height:"95%", width:"100%", overflowY:"hidden"}}>
-              
-              {/* Catalog Items */}
-              <div className="d-flex justify-content-center" style={{height:"95%", overflowY:"auto"}}>
+    const pageStyle = {
+        fontSize: "12px",
+        height: environment==="freeagent" ? "700px" : "100vh",
+        width: "100%",
+        overflow: "hidden"
+    }
 
-              
-                  <div className="d-flex flex-column">
-                    {filteredItems.length>0 &&  <div className="d-flex justify-content-center">{`${filteredItems.length} Item${filteredItems.length>1?"s":""}`}</div>}
-                    <div className="d-flex justify-content-center flex-wrap">
-                    {filteredItems.length>0 && filteredItems.map((item, index)=>(
-                      <CatalogItem 
-                        key={index}
-                        item = {item}
-                        appData={appData}
-                        setAppData={setAppData}
-                        addToCart={addToCart}
-                        
-                      />
-                    ))}
-                    {filteredItems.length===0 && <div className="d-flex align-items-center" style={{fontSize: 20, color: "gray", height:"500px"}}>No items found.  Please adjust filter</div>}
-                    </div>
-                  </div>
-             
-              {/* Cart */}
-              {cart.length>0 && 
-                <div className="d-flex bg-light shadow rounded-3" style={{minWidth: "450px", height: "100%", marginRight:0}}>
-                <Cart
-                  cart = {cart}
-                  setCart = {setCart}
-                  appData = {appData}
-                  setAppData = {setAppData}
-                  setShowOrderForm = {setShowOrderForm}
-                />
-                </div>
-              }
-          </div>
-        </div>
+    const handleSelectApp = (e)=>{
+        const {name, value} = e.target 
+        setAppLabel(value)
 
-      {/* Checkout Order Form */}
-      {showOrderForm && 
-        <FloatingPanel
-            title="Check Out"
-            top="50vh"
-            left="50vw"
-            height="80vh"
-            width="60vw"
-            appData={appData}
-            displayPanel={setShowOrderForm}
-            cart={cart} 
-        >
-          <OrderForm appData={appData} setAppData={setAppData} setShowOrderForm={setShowOrderForm} cart={cart} />
-        </FloatingPanel>
+        let system_name = apps.find(item =>item.label ===value).name
+        setAppName(system_name)
+    }
+
+    const handleInputChange=(e)=>{
+        const {name, value} = e.target 
+        setFormData({...formData,...{[name]:value}})
+        setUpdatedForm({...updatedForm,...{[name]:value}})
+    }
+
+    const onCellClicked = (e) => {
+        setSelectedRecordId(e.data.id)
+        setFormData(e.data)
       }
 
+      useEffect(()=>{
+        
+      },[data])
+
+
+
+  return (
+    <div className="d-flex flex-column" style={pageStyle}>
+
+        <h2 className="text-center">nlightnlabs FreeAgent Iframe Test</h2>
+
+        <div className="d-flex w-100" style={{height:"90%", width: "100%"}}>
+
+        <div className="d-flex flex-column m-3 bg-light p-3 rounded-3 shadow" style={{position: "relative", width: "300px", height:"100%", overflowY: "hidden"}}>
+
+            <div className="form-floating mb-3">
+                <select name= "app_name" value={appLabel} placeholder="app_name" onChange={(e)=>handleSelectApp(e)} 
+                    className="form-control" 
+                    style={{ fontSize: "12px", color: "rgb(50,150,250)"}}
+                    >
+                    {appList.map((item,index)=>(
+                        <option key={index} value={item}>{item}</option>
+                    ))}
+                </select>
+                <label htmlFor="app_name" className="form-label">App system name: </label>
+            </div>
+        
+
+            <div className="d-flex justify-content-center mb-3">
+                <button className="btn btn-primary" onClick={(e)=>handleGetData()}>Get Data</button>
+            </div>
+
+            {appName !="" && appName !=null && data.length>0 &&
+                <div className="d-flex flex-column" style={{borderTop: "1px solid lightgray", height:"100%", overflowY: "hidden"}}>
+                    {Object.keys(formData).length> 0  && 
+                        <div className="d-flex flex-column p-1" style={{height:"80%", overflowY: "auto"}}>
+                            {Object.keys(formData).map((key, index)=>(
+                                <div key={index} className="form-floating mb-3">
+                                    <input id={key} name= {key} value={formData[key] || ""} className="form-control" placeholder={key} onChange={(e)=>handleInputChange(e)} style={{fontSize: "12px", color: "rgb(50,150,250)"}}></input>
+                                    <label htmlFor={key} className="form-label">{toProperCase(key.replaceAll("_"," "))}</label>
+                                </div>
+                            ))}
+                        </div>
+                    }
+                    <div className="d-flex justify-content-center mt-3">
+                        <div className="btn-group">
+                            <button className="btn btn-success" onClick={(e)=>addRecord()}>Add</button>
+                            <button className="btn btn-warning" onClick={(e)=>updateRecord()}>Update</button>
+                            <button className="btn btn-danger" onClick={(e)=>deleteRecord()}>Delete</button>
+                        </div>
+                    </div>
+                </div> 
+            }
+        </div> 
+
+        <div className="d-flex p-3 flex-column w-75" style={{height:"100%"}}>
+            <div id="myGrid" style={{height: "100%", width:"100%"}} className="ag-theme-quartz">
+                <AgGridReact
+                    rowData={data}
+                    columnDefs={fields}
+                    onCellClicked = {onCellClicked}
+                />
+            </div>
+        </div>
+        </div>
     </div>
-  )
+  );
 }
-export default App
 
-
-
+export default MarketPlace;
