@@ -311,22 +311,26 @@ const getCatalogItems = async ()=>{
 
   ///Run function to get initial data
   useEffect(() => {
-    setLoading(true)
-
-    setTimeout(()=>{
-      getIcons();
-      getUserData();
-      getEmployeeData();
-      getCurrencies();
-      getBusinessUnits();
-      getFacilities();
-      getCatalogItems();
-    },1000)
-
-    setTimeout(()=>{
-      setLoading(false)
-    },3000)
-  },[])
+    setLoading(true);
+  
+    const loadData = async () => {
+      try {
+        await getIcons();
+        await getUserData();
+        await getEmployeeData();
+        await getCurrencies();
+        await getBusinessUnits();
+        await getFacilities();
+        await getCatalogItems();
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    setTimeout(loadData, 1000);
+  }, []);
+  
 
   const addToCart = (item)=>{ 
     
