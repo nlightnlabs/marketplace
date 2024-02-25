@@ -52,9 +52,7 @@ function MarketPlace() {
       environment = "nlightn"
   }
     
-    
-
-
+  
   const useExternalScript = (src) => {
       useEffect(() => {
           const script = document.createElement('script');
@@ -334,18 +332,18 @@ const getCatalogItems = async ()=>{
 
     setTimeout(()=>{
       getIcons();
-      getUserData();
-      getEmployeeData();
-      getCurrencies();
-      getBusinessUnits();
-      getFacilities();
-      getCatalogItems();
+      // getUserData();
+      // getEmployeeData();
+      // getCurrencies();
+      // getBusinessUnits();
+      // getFacilities();
+      // getCatalogItems();
     },1000)
 
     setTimeout(()=>{
       setLoading(false)
     },1500)
-    
+
   },[])
 
 
@@ -373,7 +371,7 @@ const getCatalogItems = async ()=>{
       {loading &&
         <div className="d-flex flex-column justify-content-center bg-light shadow p-3 text-center border border-3 rounded-3" style={loadingModalStyle}>
             <Spinner/>
-            <div>ChatGPT is working on a response.</div> 
+            <div>Loading...</div> 
             <div>Please wait...</div> 
         </div>
       }
