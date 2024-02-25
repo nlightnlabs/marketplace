@@ -332,7 +332,7 @@ const getCatalogItems = async ()=>{
 
     setTimeout(()=>{
       getIcons();
-      // getUserData();
+      getUserData();
       // getEmployeeData();
       // getCurrencies();
       // getBusinessUnits();
@@ -345,8 +345,6 @@ const getCatalogItems = async ()=>{
     },1500)
 
   },[])
-
-
 
 
   const loadingModalStyle={
