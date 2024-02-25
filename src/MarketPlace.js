@@ -333,11 +333,11 @@ const getCatalogItems = async ()=>{
     setTimeout(()=>{
       getIcons();
       getUserData();
-      // getEmployeeData();
-      // getCurrencies();
-      // getBusinessUnits();
-      // getFacilities();
-      // getCatalogItems();
+      getEmployeeData();
+      getCurrencies();
+      getBusinessUnits();
+      getFacilities();
+      getCatalogItems();
     },1000)
 
     setTimeout(()=>{
