@@ -64,24 +64,20 @@ function App() {
 
     const initializeFreeAgentConnection = () => {
 
-        const FAAppletClient = window.FAAppletClient;
+      const FAAppletClient = window.FAAppletClient;
         
-        //Initialize the connection to the FreeAgent this step takes away the loading spinner
-        const FAClient = new FAAppletClient({
-            appletId: 'nlightn_marketplace',
-        });
-        console.log(FAClient)
+      //Initialize the connection to the FreeAgent this step takes away the loading spinner
+      const FAClient = new FAAppletClient({
+          appletId: 'nlightn_marketplace',
+      });
+      window.FAClient = FAClient;
 
-        FAClient.listEntityValues({
-            entity: "web_app",
-        }, (response) => {
-            console.log('Successfully loaded icons: ', response);
-            setApps(response)
-        });
-
-        window.FAClient = FAClient;
-        appData.FAClient = FAClient
-
+      FAClient.listEntityValues({
+          entity: "web_app",
+      }, (response) => {
+          console.log('Successfully loaded icons: ', response);
+          setApps(response)
+      });
     }
 
   
