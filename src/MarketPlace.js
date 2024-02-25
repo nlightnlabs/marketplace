@@ -75,7 +75,6 @@ function App() {
 
         FAClient.getUserInfo((response) => {
           console.log('User info retrieved: ', response);
-          setUser(response)
 
           setAppData(prevAppData => ({
             ...prevAppData,
@@ -93,8 +92,6 @@ function App() {
           })
           let fieldList = Array.from(fieldSet).sort();
           let result = { data: users, list: fieldList};
-    
-          setUsers(result)
 
           setAppData(prevAppData => ({
             ...prevAppData,
