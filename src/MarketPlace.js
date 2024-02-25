@@ -70,35 +70,18 @@ function App() {
         const FAClient = new FAAppletClient({
             appletId: 'nlightn_marketplace',
         });
-        window.FAClient = FAClient;
-        appData.FAClient = FAClient
 
         FAClient.getUserInfo((response) => {
-          console.log('User info retrieved: ', response);
-
-          setAppData(prevAppData => ({
-            ...prevAppData,
-            user: response
-          }));
-
+            console.log('Current user info retreived:', response);
         });
 
         FAClient.getTeamMembers((response) => {
-          console.log('All user data retrieved: ', response);
+          console.log('All users retreived:', response);
+      });
 
-          let fieldSet = new Set()
-          response.map(item=>{
-            fieldSet.add(item.full_name)
-          })
-          let fieldList = Array.from(fieldSet).sort();
-          let result = { data: response, list: fieldList};
+        window.FAClient = FAClient;
+        appData.FAClient = FAClient
 
-          setAppData(prevAppData => ({
-            ...prevAppData,
-            users: result
-          }));
-        });
-        
         FAClient.listEntityValues({
             entity: "web_app",
         }, (response) => {
@@ -171,10 +154,14 @@ function App() {
     let user = null
     let users = []
     if(environment==="freeagent"){
-      return
+      // ****CURRENTLY can not access user info in FAClient, so default to nlightn users
         // const FAClient = window.FAClient;
         // user = await freeAgentApi.getCurrentUserData(FAClient);
         // users = await freeAgentApi.getAllUserData(FAClient);
+
+        let response = await nlightnApi.getTable("users")
+        users = response.data
+        user = users.find(item=>item.first_name ==="General")
     }else{
         let response = await nlightnApi.getTable("users")
         users = response.data
