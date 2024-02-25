@@ -70,6 +70,8 @@ function App() {
         const FAClient = new FAAppletClient({
             appletId: 'nlightn_marketplace',
         });
+        window.FAClient = FAClient;
+        appData.FAClient = FAClient
 
         FAClient.getUserInfo((response) => {
           console.log('User info retrieved: ', response);
@@ -81,8 +83,6 @@ function App() {
           setUsers(response)
         });
         
-
-        
         FAClient.listEntityValues({
             entity: "web_app",
         }, (response) => {
@@ -90,8 +90,6 @@ function App() {
             setApps(response)
         });
 
-        window.FAClient = FAClient;
-        appData.FAClient = FAClient
     }
 
   
@@ -152,33 +150,34 @@ function App() {
     }));
   };
 
-  const getUserData = async () => {
-    let user = null
-    let users = []
-    if(environment==="freeagent"){
-        const FAClient = window.FAClient;
-        user = await freeAgentApi.getCurrentUserData(FAClient);
-        users = await freeAgentApi.getAllUserData(FAClient);
-    }else{
-        let response = await nlightnApi.getTable("users")
-        users = response.data
-        user = users.find(item=>item.first_name ==="General")
-    }
 
-    let fieldSet = new Set()
-    users.map(item=>{
-      fieldSet.add(item.full_name)
-    })
-    let fieldList = Array.from(fieldSet).sort();
-    let result = { data: users, list: fieldList};
+//   const getUserData = async () => {
+//     let user = null
+//     let users = []
+//     if(environment==="freeagent"){
+//         const FAClient = window.FAClient;
+//         user = await freeAgentApi.getCurrentUserData(FAClient);
+//         users = await freeAgentApi.getAllUserData(FAClient);
+//     }else{
+//         let response = await nlightnApi.getTable("users")
+//         users = response.data
+//         user = users.find(item=>item.first_name ==="General")
+//     }
+
+//     let fieldSet = new Set()
+//     users.map(item=>{
+//       fieldSet.add(item.full_name)
+//     })
+//     let fieldList = Array.from(fieldSet).sort();
+//     let result = { data: users, list: fieldList};
  
-    setAppData(prevAppData => ({
-      ...prevAppData,
-      user: user,
-      users: result
-    }));
-    getIcons();
-};
+//     setAppData(prevAppData => ({
+//       ...prevAppData,
+//       user: user,
+//       users: result
+//     }));
+//     getIcons();
+// };
 
 const getEmployeeData = async () => { 
   let appName = ""
@@ -230,8 +229,6 @@ const setupFilters = async (data)=>{
     filterCriteria: filterData
   }));
 }
-
-
 
 const getCurrencies = async ()=>{
   let appName = ""
@@ -319,7 +316,8 @@ const getCatalogItems = async ()=>{
 
   ///Run function to get initial data
   React.useEffect(() => {
-    getUserData();
+    getIcons();
+    // getUserData();
     getEmployeeData();
     getCurrencies();
     getBusinessUnits();
