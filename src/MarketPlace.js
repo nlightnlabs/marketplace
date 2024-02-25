@@ -41,6 +41,7 @@ function MarketPlace() {
   const [cart, setCart] = useState([])
   const [items, setItems] = useState([])
   const [filterCriteria, setFilterCriteria] = useState([])
+  const [filteredItems, setFilteredItems] = useState([])
   const [cardDetails, setCardDetails] = useState([])
   const [currencySymbol, setCurrencySymbol] = useState("$")
 
