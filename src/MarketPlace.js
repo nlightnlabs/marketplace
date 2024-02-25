@@ -91,7 +91,7 @@ function App() {
             fieldSet.add(item.full_name)
           })
           let fieldList = Array.from(fieldSet).sort();
-          let result = { data: users, list: fieldList};
+          let result = { data: response, list: fieldList};
 
           setAppData(prevAppData => ({
             ...prevAppData,
