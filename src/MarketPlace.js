@@ -317,8 +317,8 @@ const getCatalogItems = async ()=>{
     const loadData = async () => {
       try {
         await getIcons();
-        await getUserData();
         await getEmployeeData();
+        await getUserData();
         await getCurrencies();
         await getBusinessUnits();
         await getFacilities();
