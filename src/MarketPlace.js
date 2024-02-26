@@ -162,24 +162,28 @@ function MarketPlace() {
 
 
   const getUserData = async () => {
+    let userName = ""
     let user = null
     let users = []
+
     if(environment==="freeagent"){
       // ****CURRENTLY can not access user info in FAClient, so default to nlightn users
         // const FAClient = window.FAClient;
         // user = await freeAgentApi.getCurrentUserData(FAClient);
         // console.log("FAClient response for user: ",user)
-
         // users = await freeAgentApi.getAllUserData(FAClient);
         // console.log("FAClient response for all users: ",users)
 
-        users = appData.employees
-        user = users.find(item=>item.first_name ==="Barbara")
+        appName = "custom_app_35"
+        userName = "Barbara"
+        lookupField = "name"
     }else{
-        let response = await nlightnApi.getTable("users")
-        users = response.data
-        user = users.find(item=>item.first_name ==="General")
+        appName = "users"
+        userName = "General"
+        lookupField = "full_name"
     }
+    users = await getData(appName)
+    user = users.find(item=>item[lookupField]===userName)
 
     let fieldSet = new Set()
     users.map(item=>{
