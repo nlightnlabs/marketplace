@@ -1,11 +1,9 @@
 import React, {useRef, useState, useEffect} from "react"
+import { toProperCase } from "../functions/formatValue"
 
 const ItemPage = (props)=>{
     
-    const appData = props.appData
     const item = props.item
-    const components = props.components
-    const toProperCase = components.toProperCase
 
     const tableStyle={
       fontSize: "12px",
@@ -22,7 +20,7 @@ const ItemPage = (props)=>{
     }
 
     return(
-      <div className="flex-container flex-column" style={{width:"100%"}}>
+      <div className="flex-container flex-column bg-white p-3" style={{width:"100%"}}>
         {
           Object.entries(item).map(([key,value])=>(
               value !=null && value !="" && 
@@ -57,7 +55,7 @@ const ItemPage = (props)=>{
                     typeof value =="string" 
                     && (value.toLowerCase().includes(".png")||value.includes(".bmp")||value.includes(".jpg")||value.includes(".jpeg") ||value.includes(".gif"))
                     && (value.toLowerCase().includes("http"))?
-                        <img src={value} style={{maxWidth: "80%", height:"auto"}} alt=""></img>
+                        <img src={value} style={{maxWidth: "80%", height:"auto", maxHeight: "150px"}} alt=""></img>
                     : 
                     typeof value =="string"?
                         <div>{value.toString()}</div>

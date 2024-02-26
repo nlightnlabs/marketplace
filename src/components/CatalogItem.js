@@ -14,11 +14,11 @@ const CatalogItem = (props)=>{
     const appHomePage = appData.appHomePage
     const FAClient = appData.FAClient
 
-    const [showItemPage, setShowItemPage] = React.useState(false)
-    const [quantity, setQuantity] = React.useState(item.quantity || "")
+    const [showItemPage, setShowItemPage] = useState(false)
+    const [quantity, setQuantity] = useState(item.quantity || "")
     const addToCart = props.addToCart
 
-    const [itemAmount, setItemAmount] = React.useState(0)
+    const [itemAmount, setItemAmount] = useState(0)
 
     
     const handleInputChange = (e)=>{
@@ -116,13 +116,27 @@ const CatalogItem = (props)=>{
           </div>
 
           {showItemPage && 
-            React.cloneElement(
-              FloatingPanel,
-              { ...{title: item.item_name, top:"50vh", left:"50vh", height:"80%", width:"50%", item: item, appData: appData, displayPanel: setShowItemPage } },
-                <div className="d-flex bg-white p-3" style={{height:"95%", overflowY:"auto"}}>
-                  {React.cloneElement(ItemPage, { item: item, appData: appData })}
-                </div>
-            )
+          <FloatingPanel 
+            title = {item.item_name}
+            top ="50vh"
+            left="50vh"
+            height="80%"
+            width="50%"
+            item ={item}
+            appData={appData}
+            displayPanel={setShowItemPage}
+          >
+              <ItemPage item = {item} appData={appData}/>
+          </FloatingPanel>
+
+          
+            // React.cloneElement(
+            //   FloatingPanel,
+            //   { ...{title: item.item_name, top:"50vh", left:"50vh", height:"80%", width:"50%", item: item, appData: appData, displayPanel: setShowItemPage } },
+            //     <div className="d-flex bg-white p-3" style={{height:"95%", overflowY:"auto"}}>
+            //       {React.cloneElement(ItemPage, { item: item, appData: appData })}
+            //     </div>
+            // )
           }
         </div>
       )
