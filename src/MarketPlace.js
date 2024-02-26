@@ -84,10 +84,10 @@ function MarketPlace() {
       window.FAClient = FAClient;
 
       FAClient.listEntityValues({
-          entity: "custom_app_10",
+          entity: "web_app",
       }, (response) => {
-          console.log('Successfully loaded icons: ', response);
-          setAppData(prev=>({...prev,...{["custom_app_10"]:response}}))
+          console.log('Successfully loaded web_apps: ', response);
+          setAppData(prev=>({...prev,...{["web_apps"]:response}}))
       });
   }
 
@@ -316,7 +316,7 @@ const getCatalogItems = async ()=>{
     }else{
       setTimeout(()=>{
         loadData()
-      },1000)
+      },3000)
     }
   
     const loadData = async () => {

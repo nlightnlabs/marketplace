@@ -1,5 +1,9 @@
   //Standard function to get all records from a FreeAgent App
   export const getFAAllRecords = async (FAClient, appName) => {
+
+    console.log(FAClient)
+    console.log(appName)
+
     try {
         let data = [];
         const response = await new Promise((resolve, reject) => {
@@ -14,6 +18,7 @@
                 }
             });
         });
+        console.log(`FreeAgent FAClient Response for ${appName}: `,response)
 
         response.map(record => {
             let rowData = {id: record.id};
