@@ -97,9 +97,8 @@ function MarketPlace() {
       if(environment==="freeagent"){
           const FAClient = window.FAClient;
           response = await freeAgentApi.getFAAllRecords(FAClient, appName);
-          console.log("data retrieved: ", response)
+          console.log(`Formatted data for ${appName}: `, response)
       }else{
-          
           response = await nlightnApi.getTable(appName)
           return response.data
       }
@@ -147,7 +146,10 @@ function MarketPlace() {
       // ****CURRENTLY can not access user info in FAClient, so default to nlightn users
         const FAClient = window.FAClient;
         user = await freeAgentApi.getCurrentUserData(FAClient);
+        console.log("FAClient response for user: ",user)
+
         users = await freeAgentApi.getAllUserData(FAClient);
+        console.log("FAClient response for all users: ",users)
 
         // let response = await nlightnApi.getTable("users")
         // users = response.data
