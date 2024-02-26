@@ -19,7 +19,7 @@ function MarketPlace() {
 
   const [apps, setApps] = useState([])
 
-  const [appData, setAppData] = React.useState({
+  const [appData, setAppData] = useState({
     user:{},
     users:{},
     employees:{},
@@ -145,13 +145,13 @@ function MarketPlace() {
     let users = []
     if(environment==="freeagent"){
       // ****CURRENTLY can not access user info in FAClient, so default to nlightn users
-        // const FAClient = window.FAClient;
-        // user = await freeAgentApi.getCurrentUserData(FAClient);
-        // users = await freeAgentApi.getAllUserData(FAClient);
+        const FAClient = window.FAClient;
+        user = await freeAgentApi.getCurrentUserData(FAClient);
+        users = await freeAgentApi.getAllUserData(FAClient);
 
-        let response = await nlightnApi.getTable("users")
-        users = response.data
-        user = users.find(item=>item.first_name ==="General")
+        // let response = await nlightnApi.getTable("users")
+        // users = response.data
+        // user = users.find(item=>item.first_name ==="General")
     }else{
         let response = await nlightnApi.getTable("users")
         users = response.data

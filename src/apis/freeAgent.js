@@ -20,7 +20,7 @@
         });
         console.log(`FreeAgent FAClient Response for ${appName}: `,response)
 
-        response.map(record => {
+        await response.map(record => {
             let rowData = {id: record.id};
             Object.entries(record.field_values).forEach(([key, value]) => {
                 let val = value.display_value;
