@@ -30,7 +30,6 @@ const Filter = (props)=>{
       }else{
           applyFilter()
       }
-      
     }
       
       const applyFilter = ()=>{
@@ -131,8 +130,6 @@ const Filter = (props)=>{
             </div>))
             }
           </div>
-          
-
         </div>
       </div>
     )

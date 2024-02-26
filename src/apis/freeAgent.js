@@ -1,14 +1,19 @@
   //Standard function to get all records from a FreeAgent App
   export const getFAAllRecords = async (FAClient, appName) => {
-    console.log("FAClient: ",FAClient)
-    console.log("appName:", appName)
-    
     try {
         let data = [];
-        const response = await FAClient.listEntityValues({
-            entity: appName,
-        })
-        console.log(response)
+        const response = await new Promise((resolve, reject) => {
+            FAClient.listEntityValues({
+                entity: appName,
+            }, (response) => {
+                console.log('Connection successful: ', response);
+                if (response) {
+                    resolve(response);
+                } else {
+                    reject("No response from server");
+                }
+            });
+        });
 
         response.map(record => {
             let rowData = {id: record.id};
@@ -23,7 +28,7 @@
         });
         return data;
     } catch (error) {
-        console.log(error)
+        throw new Error("Error fetching data: " + error);
     }
 };
 
@@ -143,24 +148,30 @@ export const deleteFARecord = async (FAClient, appName, recordId) => {
 }
 
   //Standard function to get a user's data from FreeAgent
-//   export const getCurrentUserData = async (FAClient) => {
-//     console.log(FAClient)
-//     try{
-//         const response = await FAClient.getUserInfo()
-//         console.log(response)
-//         return response
-//     }catch(error){
-//         console.log(error)
-//     }
-// }
+  export const getCurrentUserData = (FAClient) => {
+    return new Promise((resolve, reject) => {
+        FAClient.getUserInfo((response) => {
+            console.log('User info: ', response);
+            if (response) {
+                resolve(response);
+            } else {
+                reject("No response from server");
+            }
+        });
+    });
+}
 
   //Standard function to get a user's data from FreeAgent
-//   export const getAllUserData = async (FAClient) =>{
-//     try{
-//         const response = await FAClient.getTeamMembers()
-//         return response
-//     }catch(error){
-//         console.log(error)
-//     }
-//   }
+  export const getAllUserData = (FAClient) => {
+    return new Promise((resolve, reject) => {
+        FAClient.getTeamMembers((response) => {
+            console.log('All users: ', response);
+            if (response) {
+                resolve(response);
+            } else {
+                reject("No response from server");
+            }
+        });
+    });
+}
 

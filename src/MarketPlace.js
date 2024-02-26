@@ -79,7 +79,7 @@ function MarketPlace() {
       
       //Initialize the connection to the FreeAgent this step takes away the loading spinner
       const FAClient = new FAAppletClient({
-          appletId: 'nlightn_iframe_template',
+          appletId: 'nlightn_marketplace',
       });
       window.FAClient = FAClient;
 
@@ -121,7 +121,6 @@ function MarketPlace() {
         }
     }
     appData.addRecord = addRecord
-  
   
   
 
@@ -311,24 +310,31 @@ const getCatalogItems = async ()=>{
 
   ///Run function to get initial data
   useEffect(() => {
-    setLoading(true);
+
+    if(environment !="freeagent"){
+      loadData()
+    }else{
+      setTimeout(()=>{
+        loadData()
+      },1000)
+    }
   
     const loadData = async () => {
+      setLoading(true);
       try {
         await getIcons();
-        // await getUserData();
-        // await getEmployeeData();
-        // await getCurrencies();
-        // await getBusinessUnits();
-        // await getFacilities();
-        // await getCatalogItems();
+        await getUserData();
+        await getEmployeeData();
+        await getCurrencies();
+        await getBusinessUnits();
+        await getFacilities();
+        await getCatalogItems();
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
         setLoading(false);
       }
     };
-    setTimeout(loadData, 1000);
   }, []);
   
 
