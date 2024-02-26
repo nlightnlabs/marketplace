@@ -138,22 +138,44 @@ function MarketPlace() {
     }));
   };
 
+  const getEmployeeData = async () => { 
+    let appName = ""
+    if(environment =="freeagent"){
+      appName = "custom_app_35"
+    }else{
+      appName = "users" 
+    }
+    const data = await getData(appName)
+  
+    let fieldSet = new Set()
+    data.map(item=>{
+      fieldSet.add(item.full_name)
+    })
+    let fieldList = Array.from(fieldSet).sort();
+    let result = { data: data, list: fieldList};
+  
+    setAppData(prevAppData => ({
+      ...prevAppData,
+      employees: result
+    }));
+  };
+
 
   const getUserData = async () => {
     let user = null
     let users = []
     if(environment==="freeagent"){
       // ****CURRENTLY can not access user info in FAClient, so default to nlightn users
-        const FAClient = window.FAClient;
-        user = await freeAgentApi.getCurrentUserData(FAClient);
-        console.log("FAClient response for user: ",user)
+        // const FAClient = window.FAClient;
+        // user = await freeAgentApi.getCurrentUserData(FAClient);
+        // console.log("FAClient response for user: ",user)
 
-        users = await freeAgentApi.getAllUserData(FAClient);
-        console.log("FAClient response for all users: ",users)
+        // users = await freeAgentApi.getAllUserData(FAClient);
+        // console.log("FAClient response for all users: ",users)
 
-        // let response = await nlightnApi.getTable("users")
-        // users = response.data
-        // user = users.find(item=>item.first_name ==="General")
+        let response = await nlightnApi.getTable("users")
+        users = appData.employees
+        user = users.find(item=>item.first_name ==="Barbara")
     }else{
         let response = await nlightnApi.getTable("users")
         users = response.data
@@ -174,27 +196,7 @@ function MarketPlace() {
     }));
 };
 
-const getEmployeeData = async () => { 
-  let appName = ""
-  if(environment =="freeagent"){
-    appName = "custom_app_35"
-  }else{
-    appName = "users" 
-  }
-  const data = await getData(appName)
 
-  let fieldSet = new Set()
-  data.map(item=>{
-    fieldSet.add(item.full_name)
-  })
-  let fieldList = Array.from(fieldSet).sort();
-  let result = { data: data, list: fieldList};
-
-  setAppData(prevAppData => ({
-    ...prevAppData,
-    employees: result
-  }));
-};
 
 const setupFilters = async (data)=>{
   let items = data
