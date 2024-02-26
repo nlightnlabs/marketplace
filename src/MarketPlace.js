@@ -313,15 +313,6 @@ const getCatalogItems = async ()=>{
   ///Run function to get initial data
   useEffect(() => {
 
-    setLoading(true);
-    if(environment !="freeagent"){
-      loadData()
-    }else{
-      setTimeout(()=>{
-        loadData()
-      },3000)
-    }
-    
     const loadData = async () => {
       try {
         await getIcons();
@@ -337,6 +328,15 @@ const getCatalogItems = async ()=>{
         setLoading(false);
       }
     };
+
+    setLoading(true);
+    if(environment !="freeagent"){
+      loadData()
+    }else{
+      setTimeout(()=>{
+        loadData()
+      },3000)
+    }
   }, []);
   
 
