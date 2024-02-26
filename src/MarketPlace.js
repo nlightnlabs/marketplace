@@ -313,6 +313,7 @@ const getCatalogItems = async ()=>{
   ///Run function to get initial data
   useEffect(() => {
 
+    setLoading(true);
     if(environment !="freeagent"){
       loadData()
     }else{
@@ -320,9 +321,8 @@ const getCatalogItems = async ()=>{
         loadData()
       },3000)
     }
-  
+    
     const loadData = async () => {
-      setLoading(true);
       try {
         await getIcons();
         await getUserData();
