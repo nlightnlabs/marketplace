@@ -173,7 +173,6 @@ function MarketPlace() {
         // users = await freeAgentApi.getAllUserData(FAClient);
         // console.log("FAClient response for all users: ",users)
 
-        let response = await nlightnApi.getTable("users")
         users = appData.employees
         user = users.find(item=>item.first_name ==="Barbara")
     }else{
