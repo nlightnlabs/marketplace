@@ -165,6 +165,8 @@ function MarketPlace() {
     let userName = ""
     let user = null
     let users = []
+    let appName = ""
+    let lookupField = ""
 
     if(environment==="freeagent"){
       // ****CURRENTLY can not access user info in FAClient, so default to nlightn users
